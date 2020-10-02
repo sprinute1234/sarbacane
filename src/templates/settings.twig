@@ -1,0 +1,37 @@
+{# @var craft \craft\web\twig\variables\CraftVariable #}
+{#
+/**
+ * Sarbacane plugin for Craft CMS 3.x
+ *
+ * Sarbacane Settings.twig
+ *
+ * @author    Sprinute
+ * @copyright Copyright (c) 2020 Sprinute
+ * @link      crochetcedric@gmail.com
+ * @package   Sarbacane
+ * @since     0.0.1
+ */
+#}
+
+{% import "_includes/forms" as forms %}
+
+{% do view.registerAssetBundle("sprinute1234\\sarbacane\\assetbundles\\sarbacane\\SarbacaneAsset") %}
+
+{{ forms.textField({
+    label: 'Api Key',
+    instructions: 'Insert your Api Key here',
+    id: 'apiKey',
+    name: 'apiKey',
+    value: settings.apiKey,
+    required: true,
+    errors: settings.getErrors('apiKey')
+}) }}
+{{  forms.textField({
+    label: 'Id liste',
+    instructions: 'Insert your liste Id here',
+    id: 'listId',
+    name: 'listId',
+    value: settings.listId,
+    required: true,
+    errors: settings.getErrors('listId')
+}) }}

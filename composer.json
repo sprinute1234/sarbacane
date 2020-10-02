@@ -1,0 +1,41 @@
+{
+    "name": "sprinute1234/sarbacane",
+    "description": "Liaison craft sarbacane",
+    "type": "craft-plugin",
+    "version": "0.0.2",
+    "keywords": [
+        "craft",
+        "cms",
+        "craftcms",
+        "craft-plugin",
+        "sarbacane"
+    ],
+    "support": {
+        "docs": "https://github.com/Sprinute1234/sarbacane/blob/master/README.md",
+        "issues": "https://github.com/Sprinute1234/sarbacane/issues"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Sprinute",
+            "homepage": "crochetcedric@gmail.com"
+        }
+    ],
+    "require": {
+        "craftcms/cms": "^3.0.0"
+    },
+    "autoload": {
+        "psr-4": {
+          "sprinute1234\\sarbacane\\": "src/"
+        }
+    },
+    "extra": {
+        "name": "Sarbacane",
+        "handle": "sarbacane",
+        "developer": "Sprinute",
+        "developerUrl": "crochetcedric@gmail.com",
+        "documentationUrl": "https://github.com/Sprinute1234/sarbacane/blob/master/README.md",
+        "changelogUrl": "https://raw.githubusercontent.com/Sprinute1234/sarbacane/master/CHANGELOG.md",
+        "class": "sprinute1234\\sarbacane\\Sarbacane"
+    }
+}
