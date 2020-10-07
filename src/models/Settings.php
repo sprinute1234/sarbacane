@@ -33,13 +33,18 @@ class Settings extends Model
     public $listId = '';
 
     /**
+     * @var string
+     */
+    public $compteId = '';
+
+    /**
      * @return array[]
      */
     public function rules(): array
     {
         return [
-            [['apiKey', 'listId'], 'string'],
-            [['apiKey', 'listId'], 'required'],
+            [['apiKey', 'listId', 'compteId'], 'string'],
+            [['apiKey', 'listId', 'compteId'], 'required'],
         ];
     }
 }

@@ -35,3 +35,12 @@
     required: true,
     errors: settings.getErrors('listId')
 }) }}
+{{  forms.textField({
+    label: 'Compte ID',
+    instructions: 'Insert your compte Id here',
+    id: 'compteId',
+    name: 'compteId',
+    value: settings.compteId,
+    required: true,
+    errors: settings.getErrors('compteId')
+}) }}
