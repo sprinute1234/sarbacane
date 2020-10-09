@@ -15,4 +15,5 @@
  */
 return [
     'Sarbacane plugin loaded' => 'Sarbacane plugin loaded',
+    'Insert your Api Key here' => 'Insert your Api Key here',
 ];

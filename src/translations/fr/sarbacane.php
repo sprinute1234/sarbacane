@@ -15,4 +15,5 @@
  */
 return [
     'Sarbacane plugin loaded' => 'Plugin sarbacane chargé',
+    'Insert your Api Key here' => 'Inserer la clé Api ici',
 ];

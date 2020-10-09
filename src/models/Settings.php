@@ -38,13 +38,18 @@ class Settings extends Model
     public $compteId = '';
 
     /**
+     * @var Section
+     */
+    public $section = '';
+
+    /**
      * @return array[]
      */
     public function rules(): array
     {
         return [
-            [['apiKey', 'listId', 'compteId'], 'string'],
-            [['apiKey', 'listId', 'compteId'], 'required'],
+            [['apiKey', 'listId', 'compteId', 'section'], 'string'],
+            [['apiKey', 'compteId'], 'required'],
         ];
     }
 }

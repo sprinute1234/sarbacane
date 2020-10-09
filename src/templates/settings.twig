@@ -19,22 +19,14 @@
 
 {{ forms.textField({
     label: 'Api Key',
-    instructions: 'Insert your Api Key here',
+    instructions: 'Insert your Api Key here'|t,
     id: 'apiKey',
     name: 'apiKey',
     value: settings.apiKey,
     required: true,
     errors: settings.getErrors('apiKey')
 }) }}
-{{  forms.textField({
-    label: 'Id liste',
-    instructions: 'Insert your liste Id here',
-    id: 'listId',
-    name: 'listId',
-    value: settings.listId,
-    required: true,
-    errors: settings.getErrors('listId')
-}) }}
+
 {{  forms.textField({
     label: 'Compte ID',
     instructions: 'Insert your compte Id here',
@@ -44,3 +36,28 @@
     required: true,
     errors: settings.getErrors('compteId')
 }) }}
+<hr/>
+{% if settings.apiKey and settings.compteId %}
+    {{  forms.selectField({
+        label: 'Id liste',
+        instructions: 'Select your liste contact',
+        id: 'listId',
+        name: 'listId',
+        options: listeSarbacane,
+        value: settings.listId,
+        required: true,
+        errors: settings.getErrors('listId')
+    }) }}
+
+    {{ forms.selectField({
+        label: "Section for sync with sarbacane",
+        instructions: "Choose the section for sync with sarbacane",
+        id: "section",
+        name: "section",
+        options: allSections,
+        value: settings.section,
+        errors: settings.getErrors('section')
+    }) }}
+{% else %}
+    <p>Enter api key and compte id, save and after chose liste and entry for sync</p>
+{% endif %}

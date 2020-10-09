@@ -18,6 +18,7 @@ use craft\events\PluginEvent;
 use craft\console\Application as ConsoleApplication;
 use craft\services\Elements;
 use craft\events\ElementEvent;
+use sprinute1234\sarbacane\services\SarbacaneService;
 use yii\base\ModelEvent;
 use craft\helpers\ElementHelper;
 use craft\elements\Entry;
@@ -79,6 +80,8 @@ class Sarbacane extends Plugin
             $this->controllerNamespace = 'sprinute1234\sarbacane\console\controllers';
         }
 
+        $this->setComponents(['sarbacane' => SarbacaneService::class]);
+
         Event::on(
             Plugins::class,
             Plugins::EVENT_AFTER_INSTALL_PLUGIN,
@@ -89,32 +92,64 @@ class Sarbacane extends Plugin
         );
 
         Event::on(
-            Elements::class,
-            Elements::EVENT_BEFORE_SAVE_ELEMENT,
-            function (ElementEvent $event) {
-                $entry = $event->sender;
+            Entry::class,
+            Element::EVENT_BEFORE_SAVE,
+            function (ModelEvent $e) {
+                $entry = $e->sender;
 
-//                VarDumper::dump($event->isNew);die();
-                if ($event->element instanceof Entry && $event->isNew) {
-//                    if (ElementHelper::isDraftOrRevision($entry)) {
-//                        return;
-//                    }
-                    $data = [
-                        "email" => "test@teshgf.com",
-                        "phone" => "0102030405"
-                    ];
-                    $curl = curl_init("https://sarbacaneapis.com/v1/lists/".$this->getSettings()['listId']."/contacts");
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
-                    curl_setopt($curl, CURLOPT_USERPWD, $this->getSettings()['compteId'].":".$this->getSettings()['apiKey']);
-                    curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-                    curl_setopt($curl, CURLOPT_HTTPHEADER, [
-                        'Content-Type: application/json'
-                    ]);
-                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+                if(ElementHelper::isDraftOrRevision($entry)) {
+                    return;
+                }
+
+                $service = $this->getSarbacaneService();
+                if ($entry instanceof Entry && $service->checkIsOk($entry, $e) && $e->isNew) {
+//                    VarDumper::dump($entry); die();
+                    $curl = $service->addContact($entry);
 
                     try {
                         $response = curl_exec($curl);
+                        $entry['contactId'] = json_decode($response)[0];
                     } catch (Exception $e) {
+                        throw Error();
+                    }
+                    curl_close($curl);
+                }
+            }
+        );
+
+//        Event::on(
+//            Entry::class,
+//            Elements::EVENT_BEFORE_RESAVE_ELEMENT,
+//            function (ElementEvent $event) {
+//                if (ElementHelper::isDraftOrRevision($event->element)) {
+//                    return;
+//                }
+//
+//                VarDumper::dump($event); die();
+//                if (($element = $event->element) instanceof Entry && $event->isNew) {
+//
+//
+//                }
+//            }
+//        );
+
+        Event::on(
+            Entry::class,
+            Element::EVENT_BEFORE_DELETE,
+            function (ModelEvent $e) {
+                $entry = $e->sender;
+
+                if (ElementHelper::isDraftOrRevision($entry)) {
+                    return;
+                }
+
+                $service = $this->getSarbacaneService();
+                if ($entry instanceof Entry && $service->checkIsOk($entry, $e)) {
+                    $curl = $service->deleteContact($entry);
+
+                    try {
+                        $response = curl_exec($curl);
+                    } catch (\Exception $e) {
                         throw Error();
                     }
                     curl_close($curl);
@@ -148,11 +183,30 @@ class Sarbacane extends Plugin
      */
     protected function settingsHtml(): string
     {
+        $allSections = Craft::$app->sections->allSections;
+
+        foreach ($allSections as $section) {
+            $sections[$section['id']] = $section['name'];
+        }
+
+        $listeSarbacane = [];
+        if ($this->getSettings()['apiKey'] && $this->getSettings()['compteId']) {
+            $listeSarbacane = $this->getSarbacaneService()->getListeContact();
+        }
+
         return Craft::$app->view->renderTemplate(
             'sarbacane/settings',
             [
-                'settings' => $this->getSettings()
+                'settings' => $this->getSettings(),
+                'allSections' => $sections,
+                'listeSarbacane' => $listeSarbacane,
             ]
         );
+    }
+
+    protected function getSarbacaneService()
+    {
+        $service = $this->get('sarbacane');
+        return $service;
     }
 }
