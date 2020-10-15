@@ -1,6 +1,13 @@
 # Sarbacane plugin for Craft CMS 3.x
 
-Liaison craft sarbacane
+Plugin to link with Sarbacane.
+Creation and deletion of contact in Sarbacane by api at each creation or deletion of the entry selected in the parameters in craft cms.
+
+Required fields:
+- email
+- contactId
+
+Selection of the Sarbacane list contact to sync + selection of the craft entry.
 
 ## Requirements
 
