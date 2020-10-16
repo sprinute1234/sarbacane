@@ -5,7 +5,7 @@
  * Liaison craft sarbacane
  *
  * @link      crochetcedric@gmail.com
- * @copyright Copyright (c) 2020 Sprinute
+ * @copyright Copyright (c) 2020 Sprinute1234
  */
 
 namespace sprinute1234\sarbacane\assetbundles\sarbacane;
@@ -15,7 +15,7 @@ use craft\web\AssetBundle;
 use craft\web\assets\cp\CpAsset;
 
 /**
- * @author    Sprinute
+ * @author    Sprinute1234
  * @package   Sarbacane
  * @since     0.0.1
  */
