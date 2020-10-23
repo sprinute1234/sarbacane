@@ -43,6 +43,11 @@ class Settings extends Model
     public $section = '';
 
     /**
+     * @var array
+     */
+    public $champsToSync = [];
+
+    /**
      * @return array[]
      */
     public function rules(): array
