@@ -53,7 +53,7 @@ class Sarbacane extends Plugin
     /**
      * @var string
      */
-    public $schemaVersion = '0.0.1';
+    public $schemaVersion = '0.0.2';
 
     /**
      * @var bool
@@ -102,13 +102,11 @@ class Sarbacane extends Plugin
                 }
 
                 $service = $this->getSarbacaneService();
-                if ($entry instanceof Entry && $service->checkIsOk($entry, $e) && $e->isNew) {
-//                    VarDumper::dump($entry); die();
+                if ($entry instanceof Entry && $service->checkIsOk($entry, $e) && $e->isNew && $entryChamp = $service->getChampsId()) {
                     $curl = $service->addContact($entry);
-
                     try {
                         $response = curl_exec($curl);
-                        $entry['contactId'] = json_decode($response)[0];
+                        $entry[$entryChamp] = json_decode($response)[0];
                     } catch (Exception $e) {
                         throw Error();
                     }
@@ -116,22 +114,6 @@ class Sarbacane extends Plugin
                 }
             }
         );
-
-//        Event::on(
-//            Entry::class,
-//            Elements::EVENT_BEFORE_RESAVE_ELEMENT,
-//            function (ElementEvent $event) {
-//                if (ElementHelper::isDraftOrRevision($event->element)) {
-//                    return;
-//                }
-//
-//                VarDumper::dump($event); die();
-//                if (($element = $event->element) instanceof Entry && $event->isNew) {
-//
-//
-//                }
-//            }
-//        );
 
         Event::on(
             Entry::class,
@@ -194,12 +176,25 @@ class Sarbacane extends Plugin
             $listeSarbacane = $this->getSarbacaneService()->getListeContact();
         }
 
+        $champsSection = [];
+        $champsSarbacane = [];
+        if ($this->getSettings()['listId'] && $section = $this->getSettings()['section']) {
+            $champsSarbacane = $this->getSarbacaneService()->getListeChamps();
+            $champs = Craft::$app->sections->getSectionById($section)->getEntryTypes()['0']->getFieldLayout()->getFields();
+            foreach ($champs as $champ) {
+                $champsSection[$champ['handle']] = $champ['name'];
+            }
+        }
+
+
         return Craft::$app->view->renderTemplate(
             'sarbacane/settings',
             [
                 'settings' => $this->getSettings(),
                 'allSections' => $sections,
                 'listeSarbacane' => $listeSarbacane,
+                'champsSarbacane' => $champsSarbacane,
+                'champsSection' => $champsSection
             ]
         );
     }

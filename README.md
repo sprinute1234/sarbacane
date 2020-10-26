@@ -8,6 +8,7 @@ Required fields:
 - contactId
 
 Selection of the Sarbacane list contact to sync + selection of the craft entry.
+Chose fields of craft and Sarbacane you want sync
 
 ## Requirements
 

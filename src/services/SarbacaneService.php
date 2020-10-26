@@ -47,6 +47,9 @@ class SarbacaneService extends Component
         );
     }
 
+    /**
+     * @return array
+     */
     public function getListeContact()
     {
         $curl = curl_init("https://sarbacaneapis.com/v1/lists");
@@ -65,44 +68,104 @@ class SarbacaneService extends Component
     }
 
     /**
+     * @return array
+     */
+    public function getListeChamps()
+    {
+        $curl = curl_init("https://sarbacaneapis.com/v1/lists/".$this->settings['listId']."/fields");
+        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'GET');
+        $curl = $this->setUpCurl($curl);
+
+        $fields = [];
+        $result = curl_exec($curl);
+        curl_close($curl);
+
+        foreach (json_decode($result, true)['fields'] as $field) {
+            $fields[$field['id']] = $field['caption'];
+        }
+
+        return $fields;
+    }
+
+    /**
+     * @return mixed|null
+     */
+    public function getChampsId()
+    {
+        $fields = $this->settings['fieldsToSync'];
+
+        foreach ($fields as $field) {
+            if ($field['sarbacaneField'] === 'id') {
+                return $field['entryField'];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return mixed|null
+     */
+    protected function getIdSarbacane(Entry $entry)
+    {
+        $fields = $this->settings['fieldsToSync'];
+
+        foreach ($fields as $field) {
+            if ($field['sarbacaneField'] === 'id') {
+                return $entry[$field['entryField']];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param  Entry  $entry
+     *
+     * @return array
+     */
+    protected function getDataEntryToSarbacane(Entry $entry)
+    {
+        $data = [];
+
+        $fields = $this->settings['fieldsToSync'];
+
+        foreach ($fields as $field) {
+            if ($field['sarbacaneField'] !== 'id') {
+                $data[$field['sarbacaneField']] = $entry[$field['entryField']];
+            }
+        }
+
+        return $data;
+    }
+
+    /**
      * @param  Entry  $entry
      *
      * @return mixed
      */
     public function addContact(Entry $entry)
     {
-        $data = [
-            "email" => $entry['email'],
-        ];
+        $data = $this->getDataEntryToSarbacane($entry);
+
         $curl = curl_init("https://sarbacaneapis.com/v1/lists/".$this->settings['listId']."/contacts");
 
         return $this->setUpCurl($curl, $data);
     }
 
-//    public function editContact(Entry $entry)
-//    {
-//        $data = [
-//            "email" => $entry['email'],
-//        ];
-//
-//        $curl = curl_init("https://sarbacaneapis.com/v1/lists/".$this->settings['listId']."/contacts/".$entry['contactId']);
-//        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
-//        $this->setUpCurl($curl, $data);
-//
-//        $curl = curl_init("https://sarbacaneapis.com/v1/lists/".$this->settings['listId']."/contacts");
-//        return $this->setUpCurl($curl, $data);
-//    }
-
+    /**
+     * @param  Entry  $entry
+     *
+     * @return mixed
+     */
     public function deleteContact(Entry $entry)
     {
-        $data = [
-            "email" => $entry['email'],
-        ];
+        $idSarbacane = $this->getIdSarbacane($entry);
 
-        $curl = curl_init("https://sarbacaneapis.com/v1/lists/".$this->settings['listId']."/contacts/".$entry['contactId']);
+        $curl = curl_init("https://sarbacaneapis.com/v1/lists/".$this->settings['listId']."/contacts/".$idSarbacane);
         curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
         
-        return $this->setUpCurl($curl, $data);
+        return $this->setUpCurl($curl);
     }
 
     /**

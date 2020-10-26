@@ -56,6 +56,30 @@
         value: settings.section,
         errors: settings.getErrors('section')
     }) }}
+    <hr/>
+    {% if settings.listId and settings.section %}
+        <p>Fields to sync</p>
+        {{ forms.editableTableField({
+            id: 'fieldsToSync',
+            name: 'fieldsToSync',
+            label: 'List of fields to sync',
+            rows: settings.fieldsToSync,
+            cols: {
+                entryField: {
+                    heading: 'Fields of section',
+                    type: 'select',
+                    options: champsSection
+                },
+                sarbacaneField: {
+                    heading: 'Fields of Sarbacane',
+                    type: 'select',
+                    options: champsSarbacane
+                }
+            }
+        }) }}
+    {% else %}
+        <p>Chose craft section and Sarbacane list you want sync, save this and after come chose fields to sync</p>
+    {% endif %}
 {% else %}
     <p>Enter Sarbacane api key and compte id save this and after come chose Sarbacane list and Craft section to sync</p>
 {% endif %}
