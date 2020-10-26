@@ -53,7 +53,7 @@ class Sarbacane extends Plugin
     /**
      * @var string
      */
-    public $schemaVersion = '0.0.1';
+    public $schemaVersion = '0.0.2';
 
     /**
      * @var bool
@@ -114,22 +114,6 @@ class Sarbacane extends Plugin
                 }
             }
         );
-
-//        Event::on(
-//            Entry::class,
-//            Elements::EVENT_BEFORE_RESAVE_ELEMENT,
-//            function (ElementEvent $event) {
-//                if (ElementHelper::isDraftOrRevision($event->element)) {
-//                    return;
-//                }
-//
-//                VarDumper::dump($event); die();
-//                if (($element = $event->element) instanceof Entry && $event->isNew) {
-//
-//
-//                }
-//            }
-//        );
 
         Event::on(
             Entry::class,
@@ -198,7 +182,7 @@ class Sarbacane extends Plugin
             $champsSarbacane = $this->getSarbacaneService()->getListeChamps();
             $champs = Craft::$app->sections->getSectionById($section)->getEntryTypes()['0']->getFieldLayout()->getFields();
             foreach ($champs as $champ) {
-                $champsSection[$champ['id']] = $champ['name'];
+                $champsSection[$champ['handle']] = $champ['name'];
             }
         }
 

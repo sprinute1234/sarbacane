@@ -45,7 +45,7 @@ class Settings extends Model
     /**
      * @var array
      */
-    public $champsToSync = [];
+    public $fieldsToSync = [];
 
     /**
      * @return array[]
