@@ -11,6 +11,9 @@ namespace sprinute1234\sarbacane\services;
 use Craft;
 use craft\base\Component;
 use craft\elements\Entry;
+use craft\fields\data\SingleOptionFieldData;
+use craft\fields\data\MultiOptionsFieldData;
+use craft\fields\MultiSelect;
 use sprinute1234\sarbacane\Sarbacane;
 use yii\base\ModelEvent;
 use yii\helpers\VarDumper;
@@ -132,7 +135,24 @@ class SarbacaneService extends Component
 
         foreach ($fields as $field) {
             if ($field['sarbacaneField'] !== 'id') {
-                $data[$field['sarbacaneField']] = $entry[$field['entryField']];
+                switch ($entryField = $entry[$field['entryField']]) {
+                    case ($entryField instanceof  MultiOptionsFieldData) :
+                        $options = [];
+                        foreach ($entryField->getOptions() as $option) {
+                            if ($option->selected) {
+                                $options[] = $option->serialize();
+                            }
+                        }
+
+                        $data[$field['sarbacaneField']] = $options;
+                        break;
+                    case ($entryField instanceof SingleOptionFieldData) :
+                        $data[$field['sarbacaneField']] = $entryField->serialize();
+                        break;
+                    default:
+                        $data[$field['sarbacaneField']] = $entryField;
+                        break;
+                }
             }
         }
 

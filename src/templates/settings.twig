@@ -58,7 +58,7 @@
     }) }}
     <hr/>
     {% if settings.listId and settings.section %}
-        <p>Fields to sync</p>
+        <p>{{ 'Fields to sync'|t }}</p>
         {{ forms.editableTableField({
             id: 'fieldsToSync',
             name: 'fieldsToSync',
@@ -66,12 +66,12 @@
             rows: settings.fieldsToSync,
             cols: {
                 entryField: {
-                    heading: 'Fields of section',
+                    heading: 'Fields of section'|t,
                     type: 'select',
                     options: champsSection
                 },
                 sarbacaneField: {
-                    heading: 'Fields of Sarbacane',
+                    heading: 'Fields of Sarbacane'|t,
                     type: 'select',
                     options: champsSarbacane
                 }

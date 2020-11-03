@@ -16,4 +16,7 @@
 return [
     'Sarbacane plugin loaded' => 'Sarbacane plugin loaded',
     'Insert your Api Key here' => 'Insert your Api Key here',
+    'Fields of Sarbacane' => 'Fields of Sarbacane',
+    'Fields to sync' => 'Fields to sync',
+    'Fields of section' => 'Fields of section'
 ];
