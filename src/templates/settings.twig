@@ -57,7 +57,7 @@
         errors: settings.getErrors('section')
     }) }}
     <hr/>
-    {% if settings.listId and settings.section %}
+    {% if settings.listId and settings.section and champsSection|length > 0 and champsSarbacane|length > 0 %}
         <p>{{ 'Fields to sync'|t }}</p>
         {{ forms.editableTableField({
             id: 'fieldsToSync',

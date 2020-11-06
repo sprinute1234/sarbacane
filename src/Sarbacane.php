@@ -107,10 +107,19 @@ class Sarbacane extends Plugin
                     try {
                         $response = curl_exec($curl);
                         $entry[$entryChamp] = json_decode($response)[0];
-                    } catch (Exception $e) {
-                        throw Error();
+                    } catch (Exception $exception) {
+                        throw $exception;
                     }
                     curl_close($curl);
+                }
+
+                if ($entry instanceof Entry && $service->checkIsOk($entry, $e) && !$e->isNew) {
+                    $curl = $service->updateContact($entry);
+                    try {
+                        $response = curl_exec($curl);
+                    } catch (\Exception $exception) {
+                        throw $exception;
+                    }
                 }
             }
         );
@@ -131,8 +140,8 @@ class Sarbacane extends Plugin
 
                     try {
                         $response = curl_exec($curl);
-                    } catch (\Exception $e) {
-                        throw Error();
+                    } catch (\Exception $exception) {
+                        throw $exception;
                     }
                     curl_close($curl);
                 }
@@ -166,21 +175,23 @@ class Sarbacane extends Plugin
     protected function settingsHtml(): string
     {
         $allSections = Craft::$app->sections->allSections;
+        $settings = $this->getSettings();
 
         foreach ($allSections as $section) {
             $sections[$section['id']] = $section['name'];
         }
 
         $listeSarbacane = [];
-        if ($this->getSettings()['apiKey'] && $this->getSettings()['compteId']) {
+        if ($settings['apiKey'] && $settings['compteId']) {
             $listeSarbacane = $this->getSarbacaneService()->getListeContact();
         }
 
         $champsSection = [];
         $champsSarbacane = [];
-        if ($this->getSettings()['listId'] && $section = $this->getSettings()['section']) {
+        $section = $settings['section'] ? Craft::$app->sections->getSectionById($settings['section']) : null;
+        if ($settings['listId'] && $section) {
             $champsSarbacane = $this->getSarbacaneService()->getListeChamps();
-            $champs = Craft::$app->sections->getSectionById($section)->getEntryTypes()['0']->getFieldLayout()->getFields();
+            $champs = $section->getEntryTypes()['0']->getFieldLayout()->getFields();
             foreach ($champs as $champ) {
                 $champsSection[$champ['handle']] = $champ['name'];
             }
@@ -190,7 +201,7 @@ class Sarbacane extends Plugin
         return Craft::$app->view->renderTemplate(
             'sarbacane/settings',
             [
-                'settings' => $this->getSettings(),
+                'settings' => $settings,
                 'allSections' => $sections,
                 'listeSarbacane' => $listeSarbacane,
                 'champsSarbacane' => $champsSarbacane,
