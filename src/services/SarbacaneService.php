@@ -56,8 +56,8 @@ class SarbacaneService extends Component
     public function getListeContact()
     {
         $curl = curl_init("https://sarbacaneapis.com/v1/lists");
-        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'GET');
-        $curl = $this->setUpCurl($curl);
+
+        $curl = $this->setUpCurl($curl, 'GET');
 
         $listes = [];
         $result = curl_exec($curl);
@@ -76,8 +76,8 @@ class SarbacaneService extends Component
     public function getListeChamps()
     {
         $curl = curl_init("https://sarbacaneapis.com/v1/lists/".$this->settings['listId']."/fields");
-        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'GET');
-        $curl = $this->setUpCurl($curl);
+
+        $curl = $this->setUpCurl($curl, 'GET');
 
         $fields = [];
         $result = curl_exec($curl);
@@ -134,8 +134,17 @@ class SarbacaneService extends Component
         $fields = $this->settings['fieldsToSync'];
 
         foreach ($fields as $field) {
-            if ($field['sarbacaneField'] !== 'id') {
-                switch ($entryField = $entry[$field['entryField']]) {
+            $entryField = $entry[$field['entryField']];
+            // for http request PUT sarbacane don't understand id EMAIL_ID
+            $sarbacaneField = $field['sarbacaneField'] === 'EMAIL_ID' ? 'email' : $field['sarbacaneField'];
+            if ($sarbacaneField !== 'id' && $entryField) {
+                switch ($entryField) {
+                    case (is_string($entryField)):
+                        $data[$sarbacaneField] = $entryField;
+                        break;
+                    case ($entryField instanceof SingleOptionFieldData && $entryField->serialize() !== null) :
+                        $data[$sarbacaneField] = $entryField->serialize();
+                        break;
                     case ($entryField instanceof  MultiOptionsFieldData) :
                         $options = [];
                         foreach ($entryField->getOptions() as $option) {
@@ -144,13 +153,9 @@ class SarbacaneService extends Component
                             }
                         }
 
-                        $data[$field['sarbacaneField']] = $options;
-                        break;
-                    case ($entryField instanceof SingleOptionFieldData) :
-                        $data[$field['sarbacaneField']] = $entryField->serialize();
+                        $data[$sarbacaneField] = $options;
                         break;
                     default:
-                        $data[$field['sarbacaneField']] = $entryField;
                         break;
                 }
             }
@@ -170,7 +175,23 @@ class SarbacaneService extends Component
 
         $curl = curl_init("https://sarbacaneapis.com/v1/lists/".$this->settings['listId']."/contacts");
 
-        return $this->setUpCurl($curl, $data);
+        return $this->setUpCurl($curl, 'POST', $data);
+    }
+
+    /**
+     * @param  Entry  $entry
+     *
+     * @return mixed
+     * @since 0.0.4
+     */
+    public function updateContact(Entry $entry)
+    {
+        $data = $this->getDataEntryToSarbacane($entry);
+        $idSarbacane = $this->getIdSarbacane($entry);
+
+        $curl = curl_init("https://sarbacaneapis.com/v1/lists/".$this->settings['listId']."/contacts/".$idSarbacane);
+
+        return $this->setUpCurl($curl, 'PUT', $data);
     }
 
     /**
@@ -183,9 +204,8 @@ class SarbacaneService extends Component
         $idSarbacane = $this->getIdSarbacane($entry);
 
         $curl = curl_init("https://sarbacaneapis.com/v1/lists/".$this->settings['listId']."/contacts/".$idSarbacane);
-        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
         
-        return $this->setUpCurl($curl);
+        return $this->setUpCurl($curl, 'DELETE');
     }
 
     /**
@@ -193,12 +213,14 @@ class SarbacaneService extends Component
      * @param $data
      *
      * @return mixed
+     * @version
      */
-    private function setUpCurl($curl, $data = [])
+    private function setUpCurl($curl, $type, array $data = [])
     {
         if (count($data) > 0) {
             curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
         }
+        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $type);
         curl_setopt($curl, CURLOPT_USERPWD, $this->settings['compteId'].":".$this->settings['apiKey']);
         curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
         curl_setopt($curl, CURLOPT_HTTPHEADER, [
