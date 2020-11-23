@@ -210,6 +210,9 @@ class Sarbacane extends Plugin
         );
     }
 
+    /**
+     * @return mixed
+     */
     protected function getSarbacaneService()
     {
         $service = $this->get('sarbacane');
